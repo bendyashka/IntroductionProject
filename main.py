@@ -44,7 +44,7 @@ class CurrencyConverterApp:
         response = requests.get(url)
         data = response.json()['rates']
 
-        if operation == 'buy':
+        if operation == 'buy1':
             rate_key = 'buy'
         elif operation == 'sell':
             rate_key = 'sell'
