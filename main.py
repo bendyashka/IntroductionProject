@@ -1,3 +1,4 @@
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 import requests
@@ -37,29 +38,40 @@ class CurrencyConverterApp:
         self.sell_button.grid(row=3, column=1, pady=10)
 
     def get_currency_list(self):
-        return ['USD', 'EUR', 'CNY', 'RUB', 'KGS']
+        return ['USD', 'EUR', 'RUB', 'KGS']
 
     def exchange_currencies(self, amount, from_currency, to_currency, operation):
         url = "https://mbank.cbk.kg/svc-biz-ib-cbk-currencies/v1/unauthorized-api/private/currencies/exchange-rates"
         response = requests.get(url)
         data = response.json()['rates']
 
-        if operation == 'buy2':
+        if operation == 'buy':
             rate_key = 'buy'
         elif operation == 'sell':
             rate_key = 'sell'
         else:
             return None
 
-        try:
-            from_currency_rate = next(currency['to'][0][rate_key] for currency in data if currency['currency'] == to_currency)
-        except StopIteration:
-            from_currency_rate = next(currency[rate_key] for currency in data if currency['currency'] == to_currency)
+        # Handle EUR as a special case
+        if from_currency == 'EUR':
+            from_currency_rate = 1.0  # 1 EUR is always 1.0 in this case
+        else:
+            try:
+                from_currency_rate = next(
+                    currency['to'][0][rate_key] for currency in data if currency['currency'] == to_currency)
+            except StopIteration:
+                from_currency_rate = next(
+                    currency[rate_key] for currency in data if currency['currency'] == to_currency)
 
-        try:
-            to_currency_rate = next(currency['to'][0][rate_key] for currency in data if currency['currency'] == from_currency)
-        except StopIteration:
-            to_currency_rate = next(currency[rate_key] for currency in data if currency['currency'] == from_currency)
+        if to_currency == 'EUR':
+            to_currency_rate = 1.0
+        else:
+            try:
+                to_currency_rate = next(
+                    currency['to'][0][rate_key] for currency in data if currency['currency'] == from_currency)
+            except StopIteration:
+                to_currency_rate = next(
+                    currency[rate_key] for currency in data if currency['currency'] == from_currency)
 
         if from_currency_rate is None or to_currency_rate is None:
             return None
@@ -91,4 +103,7 @@ if __name__ == "__main__":
         app = CurrencyConverterApp(root)
         root.mainloop()
     except Exception as e:
-        print(f"An error occurred: {e}") 
+        print(f"An error occurred: {e}")
+
+
+
